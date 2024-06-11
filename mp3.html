@@ -84,3 +84,41 @@ audio {
     <script src="script.js"></script>
 </body>
 </html>
+
+<script>
+
+    document.getElementById('uploadButton').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const files = event.target.files;
+    const mp3List = document.getElementById('mp3List');
+    
+    for (let i = 0; i < files.length; i++) {
+        if (files[i].type === 'audio/mpeg') {
+            const option = document.createElement('option');
+            option.value = URL.createObjectURL(files[i]);
+            option.textContent = files[i].name;
+            mp3List.appendChild(option);
+        }
+    }
+});
+
+document.getElementById('mp3List').addEventListener('change', function() {
+    const audioPlayer = document.getElementById('audioPlayer');
+    audioPlayer.src = this.value;
+    audioPlayer.play();
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const mp3List = document.getElementById('mp3List');
+    const options = mp3List.getElementsByTagName('option');
+    
+    for (let i = 0; i < options.length; i++) {
+        const txtValue = options[i].textContent || options[i.innerText];
+        options[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+    }
+});
+</script>
