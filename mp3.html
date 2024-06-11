@@ -53,6 +53,10 @@
             border-radius: 5px;
             padding: 5px;
         }
+        option.playing {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
         audio {
             width: 100%;
             margin-top: 20px;
@@ -78,41 +82,97 @@
         <div id="errorMessage"></div>
     </div>
     <script>
-        document.getElementById('selectFilesButton').addEventListener('click', function() {
-            document.getElementById('fileInput').click();
+        const fileInput = document.getElementById('fileInput');
+        const selectFilesButton = document.getElementById('selectFilesButton');
+        const searchInput = document.getElementById('searchInput');
+        const mp3List = document.getElementById('mp3List');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const errorMessage = document.getElementById('errorMessage');
+
+        selectFilesButton.addEventListener('click', () => {
+            fileInput.click();
         });
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
+        fileInput.addEventListener('change', (event) => {
             const files = event.target.files;
-            const mp3List = document.getElementById('mp3List');
             mp3List.innerHTML = '';
 
-            for (let i = 0; i < files.length; i++) {
-                if (files[i].type === 'audio/mpeg') {
+            Array.from(files).forEach((file) => {
+                if (file.type === 'audio/mpeg') {
                     const option = document.createElement('option');
-                    option.value = URL.createObjectURL(files[i]);
-                    option.textContent = files[i].name;
+                    option.value = URL.createObjectURL(file);
+                    option.textContent = file.name;
+                    option.dataset.filesize = file.size;
+                    option.dataset.filetype = file.type;
                     mp3List.appendChild(option);
                 }
+            });
+
+            if (mp3List.options.length > 0) {
+                mp3List.selectedIndex = 0;
+                mp3List.dispatchEvent(new Event('change'));
             }
         });
 
-        document.getElementById('mp3List').addEventListener('change', function() {
-            const audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.src = this.value;
+        mp3List.addEventListener('change', () => {
+            const selectedOption = mp3List.options[mp3List.selectedIndex];
+            audioPlayer.src = selectedOption.value;
+            highlightCurrentPlaying();
             audioPlayer.play();
         });
 
-        document.getElementById('searchInput').addEventListener('input', function() {
-            const filter = this.value.toLowerCase();
-            const mp3List = document.getElementById('mp3List');
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
             const options = mp3List.getElementsByTagName('option');
-            
-            for (let i = 0; i < options.length; i++) {
-                const txtValue = options[i].textContent || options[i].innerText;
-                options[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
+
+            Array.from(options).forEach((option) => {
+                const txtValue = option.textContent || option.innerText;
+                option.style.display = txtValue.toLowerCase().includes(filter) ? '' : 'none';
+            });
+        });
+
+        mp3List.addEventListener('keydown', (event) => {
+            let newIndex;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                    event.preventDefault();
+                    newIndex = mp3List.selectedIndex - 1;
+                    if (newIndex >= 0) {
+                        mp3List.selectedIndex = newIndex;
+                        mp3List.dispatchEvent(new Event('change'));
+                    }
+                    break;
+                case 'ArrowDown':
+                    event.preventDefault();
+                    newIndex = mp3List.selectedIndex + 1;
+                    if (newIndex < mp3List.length) {
+                        mp3List.selectedIndex = newIndex;
+                        mp3List.dispatchEvent(new Event('change'));
+                    }
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    mp3List.dispatchEvent(new Event('change'));
+                    break;
             }
         });
+
+        audioPlayer.addEventListener('ended', () => {
+            const currentIndex = mp3List.selectedIndex;
+            if (currentIndex + 1 < mp3List.length) {
+                mp3List.selectedIndex = currentIndex + 1;
+                mp3List.dispatchEvent(new Event('change'));
+            }
+        });
+
+        function highlightCurrentPlaying() {
+            Array.from(mp3List.options).forEach(option => {
+                option.classList.remove('playing');
+            });
+            const selectedOption = mp3List.options[mp3List.selectedIndex];
+            selectedOption.classList.add('playing');
+        }
     </script>
 </body>
 </html>
