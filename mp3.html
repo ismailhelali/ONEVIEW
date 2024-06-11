@@ -66,7 +66,8 @@
 <body>
     <div class="container">
         <h1>Advanced MP3 Player</h1>
-        <button id="selectDirectoryButton">Select MP3 Directory</button>
+        <input type="file" id="fileInput" multiple accept=".mp3" style="display: none;">
+        <button id="selectFilesButton">Select MP3 Files</button>
         <input type="text" id="searchInput" placeholder="Search MP3 files">
         <select id="mp3List" size="10"></select>
         <div id="player">
@@ -77,26 +78,22 @@
         <div id="errorMessage"></div>
     </div>
     <script>
-        document.getElementById('selectDirectoryButton').addEventListener('click', async function() {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = ''; // Clear any previous error messages
-            try {
-                const directoryHandle = await window.showDirectoryPicker();
-                const mp3List = document.getElementById('mp3List');
-                mp3List.innerHTML = '';
+        document.getElementById('selectFilesButton').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
 
-                for await (const entry of directoryHandle.values()) {
-                    if (entry.kind === 'file' && entry.name.endsWith('.mp3')) {
-                        const file = await entry.getFile();
-                        const option = document.createElement('option');
-                        option.value = URL.createObjectURL(file);
-                        option.textContent = file.name;
-                        mp3List.appendChild(option);
-                    }
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const files = event.target.files;
+            const mp3List = document.getElementById('mp3List');
+            mp3List.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].type === 'audio/mpeg') {
+                    const option = document.createElement('option');
+                    option.value = URL.createObjectURL(files[i]);
+                    option.textContent = files[i].name;
+                    mp3List.appendChild(option);
                 }
-            } catch (error) {
-                errorMessage.textContent = 'Error accessing directory: ' + error.message;
-                console.error('Error accessing directory:', error);
             }
         });
 
