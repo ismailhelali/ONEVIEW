@@ -57,6 +57,10 @@
             width: 100%;
             margin-top: 20px;
         }
+        #errorMessage {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -70,9 +74,12 @@
                 Your browser does not support the audio element.
             </audio>
         </div>
+        <div id="errorMessage"></div>
     </div>
     <script>
         document.getElementById('selectDirectoryButton').addEventListener('click', async function() {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = ''; // Clear any previous error messages
             try {
                 const directoryHandle = await window.showDirectoryPicker();
                 const mp3List = document.getElementById('mp3List');
@@ -88,6 +95,7 @@
                     }
                 }
             } catch (error) {
+                errorMessage.textContent = 'Error accessing directory: ' + error.message;
                 console.error('Error accessing directory:', error);
             }
         });
