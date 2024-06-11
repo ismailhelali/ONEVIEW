@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced MP3 Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced MP3 Player</h1>
+        <input type="file" id="fileInput" multiple accept=".mp3" style="display: none;">
+        <button id="uploadButton">Upload MP3 Files</button>
+        <input type="text" id="searchInput" placeholder="Search MP3 files">
+        <select id="mp3List" size="10"></select>
+        <div id="player">
+            <audio id="audioPlayer" controls>
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
